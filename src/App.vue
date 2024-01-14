@@ -1,5 +1,5 @@
 <template>
-  <h1>Organoid</h1>
+  <h1>Arcanoid</h1>
   <game_board />
 </template>
 <script setup>
