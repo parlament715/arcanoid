@@ -5,6 +5,7 @@
       :class="{
         'cell-empty': cell == 0,
         'cell-wall-vertically': cell == 1,
+        'cell-target': cell == 2,
         'cell-wall-angel': cell == 5,
         'cell-wall-horizontally': cell == 4,
         'cell-ball': cell == 3
@@ -15,12 +16,16 @@
   </div>
 </template>
 <script setup>
+import { reactive } from 'vue'
+import { gen_gameboard, palitra, not_palitra, game_over, vector_x } from '../func.js'
+
 let dy = -1 // направление по y
-let dx = -1 // направление по x
-let nx = 5 //now x
-let ny = 8 //now y
+let dx = vector_x() // направление по x
+let nx = 22 //now x
+let ny = 16 //now y
 
 window.addEventListener('keydown', (event) => {
+  // движение на клик стрелок
   if (event.code == 'ArrowRight') {
     palitra(list)
   }
@@ -29,24 +34,12 @@ window.addEventListener('keydown', (event) => {
   }
 })
 
-import { reactive } from 'vue'
-import { gen_gameboard } from './other.vue'
-const list = reactive([gen_gameboard()])
-function palitra(list) {
-  let last_list = list[list.length - 1]
-  const lastElement = last_list.pop() // Удаляем последний элемент и сохраняем его
+const list = reactive(gen_gameboard())
 
-  last_list.unshift(lastElement) // Помещаем удаленный элемент в начало массива
-}
-function not_palitra(list) {
-  let last_list = list[list.length - 1]
-  const firstElement = last_list.shift() // Удаляем первый элемент и сохраняем его
-
-  last_list.push(firstElement)
-}
 setInterval(() => {
+  game_over(list[list.length - 1])
+  // движение шарика
   if (list[ny + dy][nx + dx] == 1) {
-    // проверяем будет ли стенка на следующем шаге, а также проверяем есть ли стенка справа или слева, для того чтобы понять это стенка вертикальна или нет
     dx = -1 * dx
   }
   if (list[ny + dy][nx + dx] == 4) {
@@ -62,7 +55,11 @@ setInterval(() => {
     nx += dx
     ny += dy
   }
-}, 250)
+  if (list[ny + dy][nx + dx] == 2) {
+    list[ny + dy][nx + dx] = 0
+    dy = -1 * dy
+  }
+}, 150)
 </script>
 <style scoped>
 .cell {
@@ -86,5 +83,8 @@ setInterval(() => {
 }
 .cell-ball {
   background-color: rgb(41, 226, 41);
+}
+.cell-target {
+  background-color: rgb(225, 255, 56);
 }
 </style>
